@@ -1,0 +1,17 @@
+streamlit
+transformers
+datasets
+accelerate
+peft
+trl
+sentencepiece
+faiss-cpu
+sentence-transformers
+rank-bm25
+rapidfuzz
+# bitsandbytes is optional and often not usable on CPU-only Streamlit Cloud
+# bitsandbytes
+scipy
+scikit-learn
+pandas
+numpy
