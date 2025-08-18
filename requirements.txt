@@ -5,7 +5,7 @@ accelerate
 peft
 trl
 sentencepiece
-faiss-cpu
+# faiss-cpu
 sentence-transformers
 rank-bm25
 rapidfuzz
