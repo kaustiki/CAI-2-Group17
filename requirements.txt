@@ -1,17 +1,13 @@
 streamlit
+pandas
+numpy
+scipy>=1.10
+scikit-learn>=1.3
+sentence-transformers
 transformers
-datasets
 accelerate
 peft
 trl
 sentencepiece
-# faiss-cpu
-sentence-transformers
-rank-bm25
-rapidfuzz
-# bitsandbytes is optional and often not usable on CPU-only Streamlit Cloud
-# bitsandbytes
-scipy
-scikit-learn
-pandas
-numpy
+# optional — remove if build fails:
+faiss-cpu
