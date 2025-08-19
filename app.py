@@ -125,16 +125,18 @@ def _download_indexes_if_needed() -> str:
         return f"Index auto-download failed: {e}"
 
 # -------------------------- Cached resources ----------------------------
+# -------------------------- Cached resources ----------------------------
 @st.cache_resource(show_spinner=False)
-def load_embedder():
-    if SentenceTransformer is None or not (ALLOW_DENSE or st.session_state.get("enable_dense", False)):
-        return None  # skip downloading on cold start unless user opts in
+def load_embedder(enabled: bool):
+    """Load the sentence-transformers embedder only when enabled."""
+    if not enabled or SentenceTransformer is None:
+        return None
     device = "cuda" if _have_gpu() else "cpu"
     try:
-        # public model; will download on first use if internet allowed
         return SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
     except Exception:
         return None
+
 
 @st.cache_resource(show_spinner=False)
 def load_rag_indexes():
@@ -327,14 +329,16 @@ def table_lookup_soft(question: str, DENSE, SPARSE, EMB, topn_embed: int = 40):
         }]
     }
 
-def rag_generate_answer(query: str) -> dict:
+def rag_generate_answer(query: str, dense_enabled: bool) -> dict:
+
     DENSE, SPARSE, HAS, _ = load_rag_indexes()
     if not HAS:
         return {"answer":"RAG indexes not found. Only FT model will be used.",
                 "method":"RAG/disabled","sources":[],"seconds":0.0,"confidence":0.0}
     t0 = time.time()
-    EMB = load_embedder()  # may be None if user didn't enable dense; TF-IDF path still works
+    EMB = load_embedder(dense_enabled)  # may be None; TF-IDF path still works
     det = table_lookup_soft(query, DENSE, SPARSE, EMB, topn_embed=40) if EMB else None
+
     if det:
         det["seconds"] = round(time.time() - t0, 3); det["confidence"] = 0.9
         return det
@@ -402,10 +406,14 @@ with st.sidebar:
 
     # Do NOT instantiate the embedder at startup; just show whether user enabled it.
     st.checkbox("Enable dense embeddings (downloads model)", value=False, key="enable_dense",
-                help="Keeps cold-start fast. Turn on to use MiniLM for dense search.")
+            help="Keeps cold-start fast. Turn on to use MiniLM for dense search.")
+    st.caption(f"Dense enabled: {bool(st.session_state.get('enable_dense', False) or ALLOW_DENSE)}")
 
-    tok, ftm = load_ft_model()
-    st.write(f"FT model loaded: **{ftm is not None}**")
+    # tok, ftm = load_ft_model()
+    # st.write(f"FT model loaded: **{ftm is not None}**")
+    ft_path_exists = Path(str(ADAPTER_DIR)).exists()
+    st.write(f"FT adapters path exists: **{ft_path_exists}**")
+
 
     with st.expander("RAG health / files"):
         st.write(f"Index dir: `{health['index_dir']}`")
@@ -448,16 +456,17 @@ if st.button("Run"):
         final = ""
         rag = None
         ft_text, ft_err = None, None
+        dense_enabled = bool(st.session_state.get("enable_dense", False) or ALLOW_DENSE)
 
         if mode == "RAG":
-            rag = rag_generate_answer(q)
+            rag = rag_generate_answer(q, dense_enabled)
             final = rag.get("answer") or ""
         else:  # FT
             ft_text, ft_err = ft_generate(q, max_new=max_new)
             if ft_text:
                 final = ft_text
             elif fallback_if_ft_missing:
-                rag = rag_generate_answer(q)
+                rag = rag_generate_answer(q, dense_enabled)
                 final = rag.get("answer") or ""
             else:
                 st.error("Fine-tuned model not available on this runtime.")
@@ -466,17 +475,23 @@ if st.button("Run"):
         st.write(final if final else "_(no answer)_")
 
         with st.expander("Pipeline details"):
+            ft_status = None
+            if mode == "FT":
+                # ft_generate() returns (text, err). If err is None, FT model was available.
+                ft_status = (ft_err is None)
+
             summary = {
                 "mode": mode,
                 "guardrails": "applied",
                 "rag_method": (rag or {}).get("method") if rag else None,
                 "rag_seconds": (rag or {}).get("seconds") if rag else None,
                 "rag_confidence": (rag or {}).get("confidence") if rag else None,
-                "ft_available": ft_err is None if ft_err is not None else (tok is not None and ftm is not None),
+                "ft_available": ft_status,              # <- no tok/ftm reference
                 "latency_total_s": round(time.perf_counter() - t0, 3),
-                "dense_enabled": bool(st.session_state.get("enable_dense", False)),
+                "dense_enabled": dense_enabled,         # <- use the flag you computed above
             }
             st.json(summary)
+
 
         if rag and rag.get("sources"):
             st.subheader("RAG Sources")
