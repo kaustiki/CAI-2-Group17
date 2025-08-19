@@ -9,7 +9,7 @@ Interactive Streamlit app to answer finance questions grounded in your own docum
 * **RAG path**: Hybrid retrieval (Sentence-Transformers MiniLM + TF-IDF + FAISS) with extractive answers from your prebuilt indexes.
 * **Fine-Tuned path**: TinyLlama 1.1B + LoRA adapter (optional). If the runtime can’t load the FT model, the app **automatically falls back to RAG** and tells you why.
 
-> ✅ For this project, **RAG consistently produced accurate, auditable answers** on Microsoft’s FY2024 annual report, while the small FT model sometimes hallucinated or mixed units (“billions” vs “millions”). See the comparison below.
+> For this project, **RAG consistently produced accurate, auditable answers** on Microsoft’s FY2024 annual report, while the small FT model sometimes hallucinated or mixed units (“billions” vs “millions”). See the comparison below.
 
 ---
 
