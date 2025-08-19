@@ -201,24 +201,18 @@ def load_rag_indexes():
 
 @st.cache_resource(show_spinner=True)
 def load_ft_model():
-    """Load base + LoRA if available. Falls back gracefully on CPU-only runtimes."""
     if torch is None:
         return None, None
+
     tok = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
     if tok.pad_token is None: tok.pad_token = tok.eos_token
     tok.padding_side = "right"
-    try:
-        eot_id = tok.convert_tokens_to_ids("<|eot_id|>")
-        if isinstance(eot_id, list) or eot_id is None or eot_id == tok.unk_token_id:
-            eot_id = None
-    except Exception:
-        eot_id = None
-    tok._eot_id = eot_id
 
-    use_4bit = _have_gpu()
+    use_gpu = torch.cuda.is_available()
     qcfg = None
-    if use_4bit:
+    if use_gpu:
         try:
+            from transformers import BitsAndBytesConfig
             qcfg = BitsAndBytesConfig(
                 load_in_4bit=True, bnb_4bit_quant_type="nf4",
                 bnb_4bit_use_double_quant=True, bnb_4bit_compute_dtype=torch.float16,
@@ -229,13 +223,16 @@ def load_ft_model():
     try:
         base = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME,
-            quantization_config=qcfg if qcfg else None,
-            device_map="auto" if use_4bit else None,
-            torch_dtype=torch.float16 if use_4bit else None,
+            device_map="auto" if use_gpu else "cpu",
+            torch_dtype=torch.float16 if use_gpu else None,
+            low_cpu_mem_usage=True,                # ↓ peak RAM on CPU
             trust_remote_code=True
         ).eval()
-    except Exception:
-        base = AutoModelForCausalLM.from_pretrained(MODEL_NAME, trust_remote_code=True).eval()
+    except RuntimeError as e:
+        # Friendly failure on OOM
+        if "out of memory" in str(e).lower():
+            return None, None
+        raise
 
     if not str(ADAPTER_DIR):
         return tok, None
@@ -248,6 +245,7 @@ def load_ft_model():
             ft = PeftModel.from_pretrained(base, str(ADAPTER_DIR), use_auth_token=hf_token).eval()
     except Exception:
         ft = None
+
     return tok, ft
 
 # -------------------------- RAG helpers ---------------------------------
