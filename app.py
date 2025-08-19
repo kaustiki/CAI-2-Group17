@@ -1,4 +1,4 @@
-# app.py — Streamlit: Guarded RAG or FT (dense embeddings always on)
+# app.py — Streamlit: Guarded RAG or FT (dense embeddings always on + resilient FT)
 
 import os, re, time, json, pickle, io, zipfile
 from pathlib import Path
@@ -48,6 +48,9 @@ ADAPTER_DIR = Path(_getenv(
 ))
 INDEX_ZIP_URL = _getenv("INDEX_ZIP_URL", "").strip()  # optional auto-download
 
+# Allow FT on CPU (slow) if you really want to. Default: require GPU.
+ALLOW_FT_ON_CPU = _getenv("ALLOW_FT_ON_CPU", "0") == "1"
+
 ASSETS = {
     "chunks100": {"faiss": IDX/"faiss_chunks100.index", "meta": IDX/"meta_chunks100.pkl",
                   "tfidf_mat": IDX/"tfidf_chunks100.npz", "tfidf_vec": IDX/"tfidf_chunks100.pkl"},
@@ -91,6 +94,29 @@ def _have_gpu() -> bool:
         return torch and torch.cuda.is_available()
     except Exception:
         return False
+
+# -------------------------- FT resource checks ---------------------------
+def _gpu_mem_ok(min_total_gb: float = 5.0, min_free_gb: float = 3.0) -> bool:
+    """Heuristic: need ~5GB total and ~3GB free to run TinyLlama + LoRA comfortably."""
+    if not _have_gpu() or torch is None:
+        return False
+    try:
+        free, total = torch.cuda.mem_get_info()  # bytes
+        return (total >= min_total_gb * (1024**3)) and (free >= min_free_gb * (1024**3))
+    except Exception:
+        return False
+
+def _ft_precheck() -> Tuple[bool, str]:
+    """Return (ok, reason_if_not_ok). Require GPU unless ALLOW_FT_ON_CPU=1."""
+    if torch is None:
+        return False, "PyTorch is unavailable"
+    if not _have_gpu():
+        if not ALLOW_FT_ON_CPU:
+            return False, "no GPU detected"
+        return True, ""  # CPU allowed (slow)
+    if not _gpu_mem_ok():
+        return False, "insufficient GPU memory"
+    return True, ""
 
 # -------------------------- Index bootstrap (NO st.* here) ---------------
 def _is_lfs_pointer(path: Path) -> bool:
@@ -201,42 +227,34 @@ def load_rag_indexes():
 
 @st.cache_resource(show_spinner=True)
 def load_ft_model():
-    if torch is None:
+    """Load base + LoRA if resources allow; otherwise bail out quickly."""
+    ok, why = _ft_precheck()
+    if not ok:
         return None, None
 
-    tok = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
-    if tok.pad_token is None: tok.pad_token = tok.eos_token
-    tok.padding_side = "right"
-
-    use_gpu = torch.cuda.is_available()
-    qcfg = None
-    if use_gpu:
-        try:
-            from transformers import BitsAndBytesConfig
-            qcfg = BitsAndBytesConfig(
-                load_in_4bit=True, bnb_4bit_quant_type="nf4",
-                bnb_4bit_use_double_quant=True, bnb_4bit_compute_dtype=torch.float16,
-            )
-        except Exception:
-            qcfg = None
-
     try:
+        tok = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
+        if tok.pad_token is None:
+            tok.pad_token = tok.eos_token
+        tok.padding_side = "right"
+
+        use_gpu = _have_gpu()
         base = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME,
             device_map="auto" if use_gpu else "cpu",
             torch_dtype=torch.float16 if use_gpu else None,
-            low_cpu_mem_usage=True,                # ↓ peak RAM on CPU
+            low_cpu_mem_usage=True,
             trust_remote_code=True
         ).eval()
     except RuntimeError as e:
-        # Friendly failure on OOM
         if "out of memory" in str(e).lower():
             return None, None
-        raise
+        return None, None
+    except Exception:
+        return None, None
 
     if not str(ADAPTER_DIR):
         return tok, None
-
     try:
         if Path(str(ADAPTER_DIR)).exists():
             ft = PeftModel.from_pretrained(base, ADAPTER_DIR).eval()
@@ -359,9 +377,13 @@ def build_prompt(q: str) -> str:
            f"<|user|>\nQuestion: {q}\n<|assistant|>\nAnswer:"
 
 def ft_generate(q: str, max_new: int = 64):
+    ok, why = _ft_precheck()
+    if not ok:
+        return None, f"FT disabled: Streamlit runtime lacks resources ({why}). Falling back to RAG."
+
     tok, model = load_ft_model()
     if (tok is None) or (model is None):
-        return None, "Fine-tuned model not available on this runtime."
+        return None, "FT model unavailable (likely no GPU or OOM). Falling back to RAG."
     try:
         enc = tok(build_prompt(q), return_tensors="pt", truncation=True,
                   max_length=tok.model_max_length)
@@ -379,8 +401,12 @@ def ft_generate(q: str, max_new: int = 64):
         import re as _re
         raw = _re.split(r"(?:<\|eot_id\|>|<\|user\|>|</s>)", raw)[0]
         return raw.strip().splitlines()[0].strip(), None
+    except RuntimeError as e:
+        if "out of memory" in str(e).lower():
+            return None, "FT generation OOM. Falling back to RAG."
+        return None, f"FT runtime error: {e}. Falling back to RAG."
     except Exception as e:
-        return None, f"Generation error: {e}"
+        return None, f"FT error: {e}. Falling back to RAG."
 
 # -------------------------- UI ------------------------------------------
 st.set_page_config(page_title="Financial Q&A — Guarded RAG or FT", page_icon="💬", layout="centered")
@@ -402,7 +428,7 @@ with st.sidebar:
     emb_ok = load_embedder() is not None
     st.write(f"Dense embedder loaded: **{emb_ok}**")
 
-    # Keep FT optional; don't load in sidebar to avoid cold starts.
+    # Keep FT optional; don't actually load here (avoid cold start latency).
     ft_path_exists = Path(str(ADAPTER_DIR)).exists()
     st.write(f"FT adapters path exists: **{ft_path_exists}**")
 
@@ -433,7 +459,7 @@ with st.sidebar:
         "Fallback to RAG if FT unavailable (FT mode)",
         value=True
     )
-    st.caption("Set Secrets/Env: RAG_BASE, ADAPTER_DIR, optional INDEX_ZIP_URL, HUGGINGFACE_TOKEN.")
+    st.caption("Set Secrets/Env: RAG_BASE, ADAPTER_DIR, optional INDEX_ZIP_URL, HUGGINGFACE_TOKEN, ALLOW_FT_ON_CPU=1 (optional).")
 
 q = st.text_input("Your question", placeholder="e.g., What was total revenue in FY2023?")
 max_new = st.slider("Max new tokens", 16, 256, 64, step=8)
@@ -456,6 +482,8 @@ if st.button("Run"):
             if ft_text:
                 final = ft_text
             elif fallback_if_ft_missing:
+                if ft_err:
+                    st.warning(ft_err)
                 rag = rag_generate_answer(q)
                 final = rag.get("answer") or ""
             else:
