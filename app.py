@@ -1,6 +1,5 @@
 # app.py — Streamlit: Guarded RAG or FT (robust Cloud version)
-
-import os, re, time, pickle, io, zipfile
+import os, re, time, json, pickle, io, zipfile
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
@@ -30,10 +29,9 @@ try:
 except Exception:
     SentenceTransformer = None
 
-
 # -------------------------- Helpers / Config -----------------------------
 def _getenv(key: str, default: str = "") -> str:
-    # Works both locally (env) and Streamlit Cloud (secrets)
+    """Read from os.environ or st.secrets (works on Streamlit Cloud)."""
     try:
         return os.environ.get(key) or st.secrets.get(key, default)
     except Exception:
@@ -48,7 +46,7 @@ ADAPTER_DIR = Path(_getenv(
     str(RAG_BASE / "outputs" / "finetune" / "TinyLlama-1.1B-Chat-v1.0_lora_qna_miniloop")
 ))
 INDEX_ZIP_URL = _getenv("INDEX_ZIP_URL", "").strip()  # optional auto-download
-DISABLE_FT = _getenv("DISABLE_FT", "").lower() in {"1", "true", "yes"}
+ALLOW_DENSE = _getenv("ALLOW_DENSE", "0") == "1"      # default OFF to avoid cold-start download
 
 ASSETS = {
     "chunks100": {"faiss": IDX/"faiss_chunks100.index", "meta": IDX/"meta_chunks100.pkl",
@@ -58,7 +56,6 @@ ASSETS = {
     "tables":    {"faiss": IDX/"faiss_tables.index",   "meta": IDX/"meta_tables.pkl",
                   "tfidf_mat": IDX/"tfidf_tables.npz", "tfidf_vec": IDX/"tfidf_tables.pkl"},
 }
-
 
 # -------------------------- Guardrails ----------------------------------
 RE_EMAIL     = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
@@ -95,10 +92,9 @@ def _have_gpu() -> bool:
     except Exception:
         return False
 
-
-# -------------------------- Index bootstrap (no st.*) --------------------
+# -------------------------- Index bootstrap (NO st.* here) ---------------
 def _is_lfs_pointer(path: Path) -> bool:
-    # Detect Git LFS pointer files (~150 bytes)
+    """Detect Git LFS pointer files (~150 bytes, starts with spec line)."""
     if not path.exists() or path.is_dir():
         return False
     try:
@@ -110,16 +106,17 @@ def _is_lfs_pointer(path: Path) -> bool:
 
 def _download_indexes_if_needed() -> str:
     """
-    If indexes are missing and INDEX_ZIP_URL is set, download & unzip.
-    Returns a message string. No Streamlit calls here.
+    If indexes are missing and INDEX_ZIP_URL is set, pull and unzip.
+    Returns a human-readable message. Does NOT call any Streamlit APIs.
     """
     need = not (IDX.exists() and any(IDX.glob("*")))
-    if not need or not INDEX_ZIP_URL:
+    url = INDEX_ZIP_URL
+    if not need or not url:
         return ""
     try:
         import urllib.request
         IDX.parent.mkdir(parents=True, exist_ok=True)  # ensure data/
-        with urllib.request.urlopen(INDEX_ZIP_URL) as r:
+        with urllib.request.urlopen(url) as r:
             data = r.read()
         with zipfile.ZipFile(io.BytesIO(data)) as z:
             z.extractall(RAG_BASE / "data")  # zip should contain 'indexes/' folder
@@ -127,14 +124,14 @@ def _download_indexes_if_needed() -> str:
     except Exception as e:
         return f"Index auto-download failed: {e}"
 
-
 # -------------------------- Cached resources ----------------------------
 @st.cache_resource(show_spinner=False)
 def load_embedder():
-    if SentenceTransformer is None:
-        return None
+    if SentenceTransformer is None or not (ALLOW_DENSE or st.session_state.get("enable_dense", False)):
+        return None  # skip downloading on cold start unless user opts in
     device = "cuda" if _have_gpu() else "cpu"
     try:
+        # public model; will download on first use if internet allowed
         return SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
     except Exception:
         return None
@@ -165,6 +162,7 @@ def load_rag_indexes():
             health["missing"].append(str(p))
             return False, 0, False
 
+    # Record presence before trying to read
     for asset in ASSETS.values():
         for key in ("faiss", "meta", "tfidf_mat", "tfidf_vec"):
             check_file(asset[key])
@@ -204,9 +202,8 @@ def load_rag_indexes():
 @st.cache_resource(show_spinner=True)
 def load_ft_model():
     """Load base + LoRA if available. Falls back gracefully on CPU-only runtimes."""
-    if torch is None or DISABLE_FT:
+    if torch is None:
         return None, None
-
     tok = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
     if tok.pad_token is None: tok.pad_token = tok.eos_token
     tok.padding_side = "right"
@@ -241,20 +238,18 @@ def load_ft_model():
         base = AutoModelForCausalLM.from_pretrained(MODEL_NAME, trust_remote_code=True).eval()
 
     # Accept either local path or HF repo id for adapters
-    adapter_path = str(ADAPTER_DIR)
-    if not adapter_path:
+    if not str(ADAPTER_DIR):
         return tok, None
 
     try:
-        if Path(adapter_path).exists():
-            ft = PeftModel.from_pretrained(base, adapter_path).eval()
+        if Path(str(ADAPTER_DIR)).exists():
+            ft = PeftModel.from_pretrained(base, ADAPTER_DIR).eval()
         else:
             hf_token = _getenv("HUGGINGFACE_TOKEN", "") or None
-            ft = PeftModel.from_pretrained(base, adapter_path, use_auth_token=hf_token).eval()
+            ft = PeftModel.from_pretrained(base, str(ADAPTER_DIR), use_auth_token=hf_token).eval()
     except Exception:
         ft = None
     return tok, ft
-
 
 # -------------------------- RAG helpers ---------------------------------
 def _norm(vals: List[float]) -> List[float]:
@@ -313,7 +308,7 @@ def hybrid_search(query: str, DENSE, SPARSE, EMB, k_each=5, top_k=8, use_tables=
     return fused[:top_k]
 
 def table_lookup_soft(question: str, DENSE, SPARSE, EMB, topn_embed: int = 40):
-    if not DENSE.get("tables"):
+    if not DENSE.get("tables"):  # no table index
         return None
     cand = _tfidf("tables", question, SPARSE, k=topn_embed) or _dense("tables", question, DENSE, EMB, k=topn_embed) or []
     if not cand or EMB is None: return None
@@ -338,14 +333,15 @@ def rag_generate_answer(query: str) -> dict:
         return {"answer":"RAG indexes not found. Only FT model will be used.",
                 "method":"RAG/disabled","sources":[],"seconds":0.0,"confidence":0.0}
     t0 = time.time()
-    EMB = load_embedder()
-    det = table_lookup_soft(query, DENSE, SPARSE, EMB, topn_embed=40)
+    EMB = load_embedder()  # may be None if user didn't enable dense; TF-IDF path still works
+    det = table_lookup_soft(query, DENSE, SPARSE, EMB, topn_embed=40) if EMB else None
     if det:
         det["seconds"] = round(time.time() - t0, 3); det["confidence"] = 0.9
         return det
     res = hybrid_search(query, DENSE, SPARSE, EMB, k_each=5, top_k=6, use_tables=False)
     if not res:
-        return {"answer":"No relevant context found.","method":"RAG/retrieve_empty","sources":[],"seconds":round(time.time()-t0,3),"confidence":0.0}
+        return {"answer":"No relevant context found.","method":"RAG/retrieve_empty",
+                "sources":[],"seconds":round(time.time()-t0,3),"confidence":0.0}
     top = res[0]
     return {
         "answer": (top.get("text") or "").strip(),
@@ -388,22 +384,26 @@ def ft_generate(q: str, max_new: int = 64):
     except Exception as e:
         return None, f"Generation error: {e}"
 
-
 # -------------------------- UI ------------------------------------------
 st.set_page_config(page_title="Financial Q&A — Guarded RAG or FT", page_icon="💬", layout="centered")
+
 st.title("Financial Q&A — Guarded RAG vs. Fine-Tuned TinyLlama")
 st.write("Guardrails → (optional) RAG retrieval → (optional) LoRA model. Deployable on Streamlit Community Cloud.")
 
 with st.sidebar:
-    # Optional: try to fetch indexes (e.g., from a GitHub Release asset)
+    # Optional: trigger index auto-download only after UI exists
     dl_msg = _download_indexes_if_needed()
     if dl_msg:
-        (st.success if "downloaded" in dl_msg.lower() else st.warning)(dl_msg)
+        (st.warning if "failed" in dl_msg.lower() else st.success)(dl_msg)
 
     st.header("Status")
     DENSE, SPARSE, HAS_RAG, health = load_rag_indexes()
     st.write(f"RAG indexes found: **{HAS_RAG}**")
-    st.write(f"Embedder ready: **{load_embedder() is not None}**")
+
+    # Do NOT instantiate the embedder at startup; just show whether user enabled it.
+    st.checkbox("Enable dense embeddings (downloads model)", value=False, key="enable_dense",
+                help="Keeps cold-start fast. Turn on to use MiniLM for dense search.")
+
     tok, ftm = load_ft_model()
     st.write(f"FT model loaded: **{ftm is not None}**")
 
@@ -412,25 +412,34 @@ with st.sidebar:
         st.write(f"FAISS available: {health['faiss_available']}")
         st.write(f"Sparse (scipy/sklearn) available: {health['sparse_available']}")
         if health["lfs_pointers"]:
-            st.warning("Some files look like Git LFS pointers (not real blobs). "
-                       "Enable Git LFS on the repo or set INDEX_ZIP_URL.")
+            st.warning("Some files look like **Git LFS pointers** (not real blobs). "
+                       "Enable Git LFS or set INDEX_ZIP_URL to download real indexes.")
+            st.json({"lfs_pointers": health["lfs_pointers"]})
         if health["missing"]:
             st.warning("Missing index files detected.")
+            st.json({"missing": health["missing"]})
         st.json(health["files"])
 
     if not HAS_RAG:
-        st.warning("RAG indexes not found — use FT mode, or set INDEX_ZIP_URL to auto-download.", icon="⚠️")
+        st.warning("RAG indexes not found — use FT mode or set INDEX_ZIP_URL to auto-download.", icon="⚠️")
 
     st.divider()
-    mode = st.radio("Run mode", ["RAG", "FT"], index=0,
-                    help="Choose how to answer: retrieve (RAG) or fine-tuned model (FT).")
-    fallback_if_ft_missing = st.checkbox("Fallback to RAG if FT unavailable (FT mode)", value=True)
-    st.caption("Secrets to set: RAG_BASE, ADAPTER_DIR (and optionally INDEX_ZIP_URL, HUGGINGFACE_TOKEN, DISABLE_FT).")
+    mode = st.radio(
+        "Run mode",
+        ["RAG", "FT"],
+        index=0,
+        help="Choose how to answer: retrieve (RAG) or fine-tuned model (FT)."
+    )
+    fallback_if_ft_missing = st.checkbox(
+        "Fallback to RAG if FT unavailable (FT mode)",
+        value=True
+    )
+    st.caption("Set Secrets/Env: RAG_BASE, ADAPTER_DIR, optional INDEX_ZIP_URL, HUGGINGFACE_TOKEN, ALLOW_DENSE=1.")
 
-q = st.text_input("Your question", placeholder="e.g., What was total revenue in FY2023?", key="q")
-max_new = st.slider("Max new tokens", 16, 256, 64, step=8, key="max_new")
+q = st.text_input("Your question", placeholder="e.g., What was total revenue in FY2023?")
+max_new = st.slider("Max new tokens", 16, 256, 64, step=8)
 
-if st.button("Run", key="run"):
+if st.button("Run"):
     t0 = time.perf_counter()
     rules = apply_input_rules(q)
     if rules:
@@ -463,8 +472,9 @@ if st.button("Run", key="run"):
                 "rag_method": (rag or {}).get("method") if rag else None,
                 "rag_seconds": (rag or {}).get("seconds") if rag else None,
                 "rag_confidence": (rag or {}).get("confidence") if rag else None,
-                "ft_available": (ft_err is None) if ft_err is not None else (tok is not None and ftm is not None),
+                "ft_available": ft_err is None if ft_err is not None else (tok is not None and ftm is not None),
                 "latency_total_s": round(time.perf_counter() - t0, 3),
+                "dense_enabled": bool(st.session_state.get("enable_dense", False)),
             }
             st.json(summary)
 
