@@ -91,7 +91,7 @@ def _have_gpu() -> bool:
     except Exception:
         return False
 
-# -------------------------- Index bootstrap -----------------------------
+# -------------------------- Index bootstrap (NO st.* here) ---------------
 def _is_lfs_pointer(path: Path) -> bool:
     """Detect Git LFS pointer files (~150 bytes, starts with spec line)."""
     if not path.exists() or path.is_dir():
@@ -103,25 +103,25 @@ def _is_lfs_pointer(path: Path) -> bool:
     except Exception:
         return False
 
-def _download_indexes_if_needed():
-    """If indexes missing and INDEX_ZIP_URL provided, pull and unzip."""
+def _download_indexes_if_needed() -> str:
+    """
+    If indexes are missing and INDEX_ZIP_URL is set, pull and unzip.
+    Returns a human-readable message. Does NOT call any Streamlit APIs.
+    """
     need = not (IDX.exists() and any(IDX.glob("*")))
-    if not need or not INDEX_ZIP_URL:
-        return
+    url = INDEX_ZIP_URL
+    if not need or not url:
+        return ""
     try:
         import urllib.request
         IDX.parent.mkdir(parents=True, exist_ok=True)  # ensure data/
-        st.sidebar.info("Downloading indexes…")
-        with urllib.request.urlopen(INDEX_ZIP_URL) as r:
+        with urllib.request.urlopen(url) as r:
             data = r.read()
         with zipfile.ZipFile(io.BytesIO(data)) as z:
-            z.extractall(RAG_BASE / "data")  # expect zip to contain 'indexes/' folder
-        st.sidebar.success("Indexes downloaded.")
+            z.extractall(RAG_BASE / "data")  # zip should contain 'indexes/' folder
+        return "Indexes downloaded."
     except Exception as e:
-        st.sidebar.warning(f"Index auto-download failed: {e}")
-
-# Do the optional download before loading caches
-_download_indexes_if_needed()
+        return f"Index auto-download failed: {e}"
 
 # -------------------------- Cached resources ----------------------------
 @st.cache_resource(show_spinner=False)
@@ -243,7 +243,6 @@ def load_ft_model():
         if Path(str(ADAPTER_DIR)).exists():
             ft = PeftModel.from_pretrained(base, ADAPTER_DIR).eval()
         else:
-            # Could be a HF repo id, optional token via HUGGINGFACE_TOKEN in env/secrets
             hf_token = _getenv("HUGGINGFACE_TOKEN", "") or None
             ft = PeftModel.from_pretrained(base, str(ADAPTER_DIR), use_auth_token=hf_token).eval()
     except Exception:
@@ -390,6 +389,14 @@ st.title("Financial Q&A — Guarded RAG vs. Fine-Tuned TinyLlama")
 st.write("Guardrails → (optional) RAG retrieval → (optional) LoRA model. Deployable on Streamlit Community Cloud.")
 
 with st.sidebar:
+    # Trigger optional index download *now that UI context exists*
+    dl_msg = _download_indexes_if_needed()
+    if dl_msg:
+        if "failed" in dl_msg.lower():
+            st.warning(dl_msg)
+        else:
+            st.success(dl_msg)
+
     st.header("Status")
 
     DENSE, SPARSE, HAS_RAG, health = load_rag_indexes()
@@ -408,7 +415,7 @@ with st.sidebar:
         st.write(f"Sparse (scipy/sklearn) available: {health['sparse_available']}")
         if health["lfs_pointers"]:
             st.warning("Some files look like **Git LFS pointers** (not real blobs). "
-                       "Enable Git LFS or use INDEX_ZIP_URL to download real indexes.")
+                       "Enable Git LFS or set INDEX_ZIP_URL to download real indexes.")
             st.json({"lfs_pointers": health["lfs_pointers"]})
         if health["missing"]:
             st.warning("Missing index files detected.")

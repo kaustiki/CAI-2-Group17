@@ -9,5 +9,5 @@ accelerate
 peft
 trl
 sentencepiece
-# optional — remove if build fails:
+# optional — remove if build fails on Cloud:
 faiss-cpu
