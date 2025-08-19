@@ -1,0 +1,22 @@
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+(In millions),Fair Value Level,,Adjusted Cost Basis,,Unrealized Gains,,Unrealized Losses,,Recorded Basis,,Cash and Cash Equivalents,,Short-term Investments,,Equity Investments
+"June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023","June 30, 2023"
+Changes in Fair Value Recorded in Other Comprehensive Income,,,,,,,,,,,,,,,
+Commercial paper,Level 2,,"$ 16,589",,$ 0,,$ 0,,"$ 16,589",,"$ 12,231",,"$ 4,358",,$ 0
+Certificates of deposit,Level 2,,2701,,0,,0,,2701,,2657,,44,,0
+U.S. government securities,Level 1,,65237,,2,,"(3,870)",,61369,,2991,,58378,,0
+U.S. agency securities,Level 2,,2703,,0,,0,,2703,,894,,1809,,0
+Foreign government bonds,Level 2,,498,,1,,(24),,475,,0,,475,,0
+Mortgage- and asset-backed securities,Level 2,,824,,1,,(39),,786,,0,,786,,0
+Corporate notes and bonds,Level 2,,10809,,8,,(583),,10234,,0,,10234,,0
+Corporate notes and bonds,Level 3,,120,,0,,0,,120,,0,,120,,0
+Municipal securities,Level 2,,285,,1,,(18),,268,,7,,261,,0
+Municipal securities,Level 3,,103,,0,,(16),,87,,0,,87,,0
+Total debt investments,,,"$ 99,869",,$ 13,,"$ (4,550)",,"$ 95,332",,"$ 18,780",,"$ 76,552",,$ 0
+Changes in Fair Value Recorded in Net Income,,,,,,,,,,,,,,,
+Equity investments,Level 1,,,,,,,,"$ 10,138",,"$ 7,446",,$ 0,,"$ 2,692"
+Equity investments,Other,,,,,,,,7187,,0,,0,,7187
+Total equity investments,,,,,,,,,"$ 17,325",,"$ 7,446",,$ 0,,"$ 9,879"
+Cash,,,,,,,,,"$ 8,478",,"$ 8,478",,$ 0,,$ 0
+"Derivatives, net (a)",,,,,,,,,6,,0,,6,,0
+Total,,,,,,,,,"$ 121,141",,"$ 34,704",,"$ 76,558",,"$ 9,879"
