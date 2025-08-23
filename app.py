@@ -42,7 +42,7 @@ def _getenv(k: str, default: str = "") -> str:
         return os.environ.get(k, default)
 
 # Paths adapted to your repo layout (override via Secrets/Env if needed)
-BASE_DIR        = Path(_getenv("BASE_DIR", "version_2"))
+BASE_DIR        = Path(_getenv("BASE_DIR", "input"))
 RAG_INDEX_DIR   = Path(_getenv("RAG_INDEX_DIR", str(BASE_DIR / "inference_rag_ft" / "RAG_data" / "indexes")))
 RAG_INDEX_ZIP   = Path(_getenv("RAG_INDEX_ZIP", str(BASE_DIR / "inference_rag_ft" / "RAG_data" / "indexes.zip")))
 MODEL_NAME      = _getenv("BASE_MODEL", "google/flan-t5-small")
