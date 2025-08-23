@@ -1,0 +1,14 @@
+0,1,2,3,5
+Declaration Date,Record Date,Payment Date,Dividend Per Share,Amount
+Fiscal Year 2024,,,,(In millions)
+"September 19, 2023","November 16, 2023","December 14, 2023",$ 0.75,"$ 5,574"
+"November 28, 2023","February 15, 2024","March 14, 2024",0.75,5573
+"March 12, 2024","May 16, 2024","June 13, 2024",0.75,5574
+"June 12, 2024","August 15, 2024","September 12, 2024",0.75,5575
+Total,,,$ 3.00,"$ 22,296"
+Fiscal Year 2023,,,,
+"September 20, 2022","November 17, 2022","December 8, 2022",$ 0.68,"$ 5,066"
+"November 29, 2022","February 16, 2023","March 9, 2023",0.68,5059
+"March 14, 2023","May 18, 2023","June 8, 2023",0.68,5054
+"June 13, 2023","August 17, 2023","September 14, 2023",0.68,5051
+Total,,,$ 2.72,"$ 20,230"

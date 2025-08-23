@@ -1,0 +1,23 @@
+We use derivative instruments to manage risks related to foreign currencies, interest rates, equity prices, and credit; to enhance investment returns; and to facilitate portfolio diversification. Our objectives for holding derivatives include reducing, eliminating, and efficiently managing the economic impact of these exposures as effectively as possible. Our derivative programs include strategies that both qualify and do not qualify for hedge accounting treatment.
+Foreign Currencies
+Certain forecasted transactions, assets, and liabilities are exposed to foreign currency risk. We monitor our foreign currency exposures daily to maximize the economic effectiveness of our foreign currency hedge positions.
+Foreign currency risks related to certain non-U.S. dollar-denominated investments are hedged using foreign exchange forward contracts that are designated as fair value hedging instruments. Foreign currency risks related to certain Euro-denominated debt are hedged using foreign exchange forward contracts that are designated as cash flow hedging instruments.
+Certain options and forwards not designated as hedging instruments are also used to manage the variability in foreign exchange rates on certain balance sheet amounts and to manage other foreign currency exposures.
+Interest Rate
+Interest rate risks related to certain fixed-rate debt are hedged using interest rate swaps that are designated as fair value hedging instruments to effectively convert the fixed interest rates to floating interest rates.
+Securities held in our fixed-income portfolio are subject to different interest rate risks based on their maturities. We manage the average maturity of our fixed-income portfolio to achieve economic returns that correlate to certain broad-based fixed-income indices using option, futures, and swap contracts. These contracts are not designated as hedging instruments and are included in âOther contractsâ in the tables below.
+Equity
+Securities held in our equity investments portfolio are subject to market price risk. At times, we may hold options, futures, and swap contracts. These contracts are not designated as hedging instruments.
+Credit
+Our fixed-income portfolio is diversified and consists primarily of investment-grade securities. We use credit default swap contracts to manage credit exposures relative to broad-based indices and to facilitate portfolio diversification. These contracts are not designated as hedging instruments and are included in âOther contractsâ in the tables below.
+Credit-Risk-Related Contingent Features
+Certain of our counterparty agreements for derivative instruments contain provisions that require our issued and outstanding long-term unsecured debt to maintain an investment grade credit rating and require us to maintain minimum liquidity of $1.0 billion. To the extent we fail to meet these requirements, we will be required to post collateral, similar to the standard convention related to over-the-counter derivatives. As of June 30, 2023, our long-term unsecured debt rating was AAA, and cash investments were in excess of $1.0 billion. As a result, no collateral was required to be posted.
+The following table presents the notional amounts of our outstanding derivative instruments measured in U.S. dollar equivalents:
+Fair Values of Derivative Instruments
+The following table presents our derivative instruments:
+Gross derivative assets and liabilities subject to legally enforceable master netting agreements for which we have elected to offset were $442 million and $804 million, respectively, as of June 30, 2023, and $343 million and $550 million, respectively, as of June 30, 2022.
+The following table presents the fair value of our derivatives instruments on a gross basis:
+Gains (losses) on derivative instruments recognized in other income (expense), net were as follows:
+Gains (losses), net of tax, on derivative instruments recognized in our consolidated comprehensive income statements were as follows:
+NOTE 6 â INVENTORIES
+The components of inventories were as follows:

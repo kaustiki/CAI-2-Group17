@@ -1,0 +1,16 @@
+The components of intangible assets, all of which are finite-lived, were as follows:
+Includes intangible assets of $22.0 billion related to Activision Blizzard. See Note 8 â Business Combinations for further information.
+No material impairments of intangible assets were identified during fiscal years 2024, 2023, or 2022. We estimate that we have no significant residual value related to our intangible assets.
+The components of intangible assets acquired during the periods presented were as follows:
+Intangible assets amortization expense was $4.8 billion, $2.5 billion, and $2.0 billion for fiscal years 2024, 2023, and 2022, respectively.
+The following table outlines the estimated future amortization expense related to intangible assets held as of June 30, 2024:
+NOTE 11 â DEBT
+Short-term Debt
+As of June 30, 2024, we had $6.7 billion of commercial paper issued and outstanding, with a weighted average interest rate of 5.4% and maturities ranging from 28 days to 152 days. The estimated fair value of this commercial paper approximates its carrying value. As of June 30, 2023, we had no commercial paper issued or outstanding.
+Long-term Debt
+The components of long-term debt were as follows:
+Includes $3.6 billion of debt at face value related to the Activision Blizzard acquisition, the majority of which was exchanged for Microsoft registered securities in June 2024. See Note 8 â Business Combinations for further information.
+Refer to Note 5 â Derivatives for further information on the interest rate swaps related to fixed-rate debt.
+As of June 30, 2024 and 2023, the estimated fair value of long-term debt, including the current portion, was $42.3 billion and $46.2 billion, respectively. The estimated fair values are based on Level 2 inputs.
+Debt in the table above is comprised of senior unsecured obligations and ranks equally with our other outstanding obligations. Interest is paid semi-annually, except for the Euro-denominated debt, which is paid annually. Cash paid for interest on our debt for fiscal years 2024, 2023, and 2022 was $1.7 billion, $1.7 billion, and $1.9 billion, respectively.
+The following table outlines maturities of our long-term debt, including the current portion, as of June 30, 2024:

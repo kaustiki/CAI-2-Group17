@@ -1,0 +1,20 @@
+The components of property and equipment were as follows:
+During fiscal years 2024, 2023, and 2022, depreciation expense was $15.2 billion, $11.0 billion, and $12.6 billion, respectively.
+As of June 30, 2024, we have committed $35.4 billion for the construction of new buildings, building improvements, and leasehold improvements, primarily related to datacenters.
+NOTE 8 â BUSINESS COMBINATIONS
+Activision Blizzard, Inc.
+On October 13, 2023, we completed our acquisition of Activision Blizzard, Inc. (âActivision Blizzardâ) for a total purchase price of $75.4 billion, consisting primarily of cash. Activision Blizzard is a leader in game development and an interactive entertainment content publisher. The acquisition will accelerate the growth in our gaming business across mobile, PC, console, and cloud gaming. The financial results of Activision Blizzard have been included in our consolidated financial statements since the date of the acquisition. Activision Blizzard is reported as part of our More Personal Computing segment.
+The purchase price allocation as of the date of acquisition was based on a preliminary valuation and is subject to revision as more detailed analyses are completed and additional information about the fair value of assets acquired and liabilities assumed becomes available. The primary areas that remain preliminary relate to the fair values of goodwill and income taxes.
+The major classes of assets and liabilities to which we have preliminarily allocated the purchase price were as follows:
+Goodwill was assigned to our More Personal Computing segment. The goodwill was primarily attributed to increased synergies that are expected to be achieved from the integration of Activision Blizzard. Substantially all of the goodwill is expected to be non-deductible for income tax purposes.
+Following are the details of the purchase price allocated to the intangible assets acquired:
+Following is the net impact of the Activision Blizzard acquisition on our consolidated income statements since the date of acquisition:
+The change of Activision Blizzard content from third-party to first-party is reflected in the net impact.
+Following are the supplemental consolidated financial results of Microsoft Corporation on an unaudited pro forma basis, as if the acquisition had been consummated on July 1, 2022:
+These pro forma results were based on estimates and assumptions, which we believe are reasonable. They are not the results that would have been realized had we been a combined company during the periods presented and are not necessarily indicative of our consolidated results of operations in future periods. The pro forma results include adjustments related to purchase accounting, primarily amortization of intangible assets. Acquisition costs and other nonrecurring charges were immaterial and are included in the earliest period presented.
+Nuance Communications, Inc.
+On March 4, 2022, we completed our acquisition of Nuance Communications, Inc. (âNuanceâ) for a total purchase price of $18.8 billion, consisting primarily of cash. Nuance is a cloud and artificial intelligence (âAIâ) software provider with healthcare and enterprise AI experience, and the acquisition will build on our industry-specific cloud offerings. The financial results of Nuance have been included in our consolidated financial statements since the date of the acquisition. Nuance is reported as part of our Intelligent Cloud segment.
+The allocation of the purchase price to goodwill was completed as of December 31, 2022. The major classes of assets and liabilities to which we have allocated the purchase price were as follows:
+Goodwill was assigned to our Intelligent Cloud segment and was primarily attributed to increased synergies that are expected to be achieved from the integration of Nuance. None of the goodwill is expected to be deductible for income tax purposes.
+Includes $986 million of convertible senior notes issued by Nuance in 2015 and 2017, substantially all of which have been redeemed.
+Following are the details of the purchase price allocated to the intangible assets acquired:

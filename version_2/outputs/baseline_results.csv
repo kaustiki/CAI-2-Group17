@@ -1,0 +1,11 @@
+question,gold,pred,exact,contains_or_exact,latency_s,gen_tokens,tokens_per_s,gold_loss,gold_ppl,gold_confidence
+How much service and other revenue did Microsoft report in FY2023?,"In FY2023, Microsoft reported service and other revenue of $147.216 billion.",$1.1 billion,0,0,0.0652,5,76.67,3.0372,20.846,0.048
+What was income before income taxes in FY2024?,"In FY2024, Microsoft reported income before income taxes of $107.787 billion.",income tax,0,1,0.051,4,78.48,3.3816,29.419,0.034
+What was diluted EPS in FY2024?,"In FY2024, Microsoft’s diluted EPS was $11.80.",EPS,0,1,0.0495,4,80.86,2.7998,16.442,0.0608
+What were weighted average diluted shares outstanding in FY2024?,"In FY2024, Microsoft had 7,469 million weighted average diluted shares outstanding.",a diluted diluted share,0,0,0.1176,9,76.54,3.0353,20.806,0.0481
+What was net cash from operating activities in FY2023?,"In FY2023, Microsoft reported net cash from operating activities of $87.582 billion.",$1.1 billion,0,0,0.0635,5,78.69,3.7488,42.468,0.0235
+"What were total liabilities as of June 30, 2024?","As of June 30, 2024, Microsoft reported total liabilities of $243.686 billion.","$150,000",0,0,0.086,7,81.43,2.8139,16.675,0.06
+"What was goodwill at June 30, 2024?","As of June 30, 2024, Microsoft’s goodwill was $119.220 billion.",a slumber party,0,0,0.1105,9,81.42,3.1864,24.2,0.0413
+What was Microsoft’s effective tax rate in FY2024?,"In FY2024, Microsoft’s effective tax rate was 18%.",5%,0,0,0.057,4,70.15,2.0193,7.533,0.1327
+What was Office products and cloud services revenue in FY2023?,"In FY2023, Microsoft’s Office products and cloud services revenue was $48.728 billion.",$1.1 billion,0,0,0.0659,5,75.82,2.4373,11.442,0.0874
+"What was total unearned revenue as of June 30, 2023?","As of June 30, 2023, Microsoft’s total unearned revenue was $53.813 billion.","$500,000",0,0,0.0507,4,78.94,2.5864,13.282,0.0753

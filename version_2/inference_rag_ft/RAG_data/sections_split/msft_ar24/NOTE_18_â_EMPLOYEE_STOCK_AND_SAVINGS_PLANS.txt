@@ -1,0 +1,46 @@
+We grant stock-based compensation to employees and directors. Awards that expire or are canceled without delivery of shares generally become available for issuance under the plans. We issue new shares of Microsoft common stock to satisfy vesting of awards granted under our stock plans. We also have an ESPP for all eligible employees.
+Stock-based compensation expense and related income tax benefits were as follows:
+Stock Plans
+Stock awards entitle the holder to receive shares of Microsoft common stock as the award vests. Stock awards generally vest over a service period of four years or five years.
+Executive Incentive Plan
+Under the Executive Incentive Plan, the Compensation Committee approves stock awards to executive officers and certain senior executives. RSUs generally vest ratably over a service period of four years. PSUs generally vest over a performance period of three years. The number of shares the PSU holder receives is based on the extent to which the corresponding performance goals have been achieved.
+Activity for All Stock Plans
+The fair value of stock awards was estimated on the date of grant using the following assumptions:
+During fiscal year 2024, the following activity occurred under our stock plans:
+Includes 1 million of PSUs granted at target and performance adjustments above target levels for each of the fiscal years 2024, 2023, and 2022.
+As of June 30, 2024, total unrecognized compensation costs related to stock awards were $20.3 billion. These costs are expected to be recognized over a weighted average period of three years. The weighted average grant-date fair value of stock awards granted was $339.46, $252.59, and $291.22 for fiscal years 2024, 2023, and 2022, respectively. The fair value of stock awards vested was $16.0 billion, $11.9 billion, and $14.1 billion, for fiscal years 2024, 2023, and 2022, respectively. As of June 30, 2024, an aggregate of 129 million shares were authorized for future grant under our stock plans.
+Employee Stock Purchase Plan
+We have an ESPP for all eligible employees. Shares of our common stock may be purchased by employees at three-month intervals at 90% of the fair market value on the last trading day of each three-month period. Employees may purchase shares having a value not exceeding 15% of their gross compensation during an offering period.
+Employees purchased the following shares during the periods presented:
+As of June 30, 2024, 68 million shares of our common stock were reserved for future issuance through the ESPP.
+Savings Plans
+We have savings plans in the U.S. that qualify under Section 401(k) of the Internal Revenue Code, and a number of savings plans in international locations. Eligible U.S. employees may contribute a portion of their salary into the savings plans, subject to certain limitations. We match a portion of each dollar a participant contributes into the plans. Employer-funded retirement benefits for all plans were $1.7 billion, $1.6 billion, and $1.4 billion in fiscal years 2024, 2023, and 2022, respectively, and were expensed as contributed.
+NOTE 19 â SEGMENT INFORMATION AND GEOGRAPHIC DATA
+In its operation of the business, management, including our chief operating decision maker, who is also our Chief Executive Officer, reviews certain financial information, including segmented internal profit and loss statements prepared on a basis not consistent with GAAP. During the periods presented, we reported our financial performance based on the following segments: Productivity and Business Processes, Intelligent Cloud, and More Personal Computing.
+Our reportable segments are described below.
+Productivity and Business Processes
+Our Productivity and Business Processes segment consists of products and services in our portfolio of productivity, communication, and information services, spanning a variety of devices and platforms. This segment primarily comprises:
+Office Commercial (Office 365 subscriptions, the Office 365 portion of Microsoft 365 Commercial subscriptions, and Office licensed on-premises), comprising Office, Exchange, SharePoint, Microsoft Teams, Office 365 Security and Compliance, Microsoft Viva, and Copilot for Microsoft 365.
+Office Consumer, including Microsoft 365 Consumer and Copilot Pro subscriptions, Office licensed on-premises, and other Office services.
+LinkedIn, including Talent Solutions, Marketing Solutions, Premium Subscriptions, and Sales Solutions.
+Dynamics business solutions, including Dynamics 365, comprising a set of intelligent, cloud-based applications across ERP, CRM, Power Apps, and Power Automate; and on-premises ERP and CRM applications.
+Intelligent Cloud
+Our Intelligent Cloud segment consists of our public, private, and hybrid server products and cloud services that can power modern business and developers. This segment primarily comprises:
+Server products and cloud services, including Azure and other cloud services; SQL Server, Windows Server, Visual Studio, System Center, and related Client Access Licenses (âCALsâ); and Nuance and GitHub.
+Enterprise and partner services, including Enterprise Support Services, Industry Solutions, Nuance professional services, Microsoft Partner Network, and Learning Experience.
+More Personal Computing
+Our More Personal Computing segment consists of products and services that put customers at the center of the experience with our technology. This segment primarily comprises:
+Windows, including Windows OEM licensing and other non-volume licensing of the Windows operating system; Windows Commercial, comprising volume licensing of the Windows operating system, Windows cloud services, and other Windows commercial offerings; patent licensing; and Windows Internet of Things.
+Devices, including Surface, HoloLens, and PC accessories.
+Gaming, including Xbox hardware and Xbox content and services, comprising first-party content (such as Activision Blizzard) and third-party content, including games and in-game content; Xbox Game Pass and other subscriptions; Xbox Cloud Gaming; advertising; third-party disc royalties; and other cloud services.
+Search and news advertising, comprising Bing (including Copilot), Microsoft News, Microsoft Edge, and third-party affiliates.
+Revenue and costs are generally directly attributed to our segments. However, due to the integrated structure of our business, certain revenue recognized and costs incurred by one segment may benefit other segments. Revenue from certain contracts is allocated among the segments based on the relative value of the underlying products and services, which can include allocation based on actual prices charged, prices when sold separately, or estimated costs plus a profit margin. Cost of revenue is allocated in certain cases based on a relative revenue methodology. Operating expenses that are allocated primarily include those relating to marketing of products and services from which multiple segments benefit and are generally allocated based on relative gross margin.
+In addition, certain costs are incurred at a corporate level and allocated to our segments. These allocated costs generally include legal, including settlements and fines, information technology, human resources, finance, excise taxes, field selling, shared facilities services, customer service and support, and severance incurred as part of a corporate program. Each allocation is measured differently based on the specific facts and circumstances of the costs being allocated and is generally based on relative gross margin or relative headcount.
+Segment revenue and operating income were as follows during the periods presented:
+No sales to an individual customer or country other than the United States accounted for more than 10% of revenue for fiscal years 2024, 2023, or 2022. Revenue, classified by the major geographic areas in which our customers were located, was as follows:
+Includes billings to OEMs and certain multinational organizations because of the nature of these businesses and the impracticability of determining the geographic source of the revenue.
+Revenue, classified by significant product and service offerings, was as follows:
+We have recast certain prior period amounts to conform to the way we internally manage and monitor our business.
+Our Microsoft Cloud revenue, which includes Azure and other cloud services, Office 365 Commercial, the commercial portion of LinkedIn, Dynamics 365, and other commercial cloud properties, was $137.4 billion, $111.6 billion, and $91.4 billion in fiscal years 2024, 2023, and 2022, respectively. These amounts are primarily included in Server products and cloud services, Office products and cloud services, LinkedIn, and Dynamics products and cloud services in the table above.
+Assets are not allocated to segments for internal reporting presentations. A portion of amortization and depreciation is included with various other costs in an overhead allocation to each segment. It is impracticable for us to separately identify the amount of amortization and depreciation by segment that is included in the measure of segment profit or loss.
+Long-lived assets, excluding financial instruments and tax assets, classified by the location of the controlling statutory company and with countries over 10% of the total shown separately, were as follows:

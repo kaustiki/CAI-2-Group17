@@ -1,0 +1,30 @@
+Reportable Segments
+Fiscal Year 2023 Compared with Fiscal Year 2022
+Productivity and Business Processes
+Revenue increased $5.9 billion or 9%.
+Office Commercial products and cloud services revenue increased $3.7 billion or 10%. Office 365 Commercial revenue grew 13% with seat growth of 11%, driven by small and medium business and frontline worker offerings, as well as growth in revenue per user. Office Commercial products revenue declined 21% driven by continued customer shift to cloud offerings.
+Office Consumer products and cloud services revenue increased $140 million or 2%. Microsoft 365 Consumer subscribers grew 12% to 67.0 million.
+LinkedIn revenue increased $1.3 billion or 10% driven by Talent Solutions.
+Dynamics products and cloud services revenue increased $750 million or 16% driven by Dynamics 365 growth of 24%.
+Operating income increased $4.5 billion or 15%.
+Gross margin increased $5.8 billion or 12% driven by growth in Office 365 Commercial and LinkedIn, as well as the change in accounting estimate. Gross margin percentage increased. Excluding the impact of the change in accounting estimate, gross margin percentage increased slightly driven by improvement in Office 365 Commercial, offset in part by sales mix shift to cloud offerings.
+Operating expenses increased $1.3 billion or 7% driven by investment in LinkedIn and employee severance expenses.
+Revenue, gross margin, and operating income included an unfavorable foreign currency impact of 5%, 5%, and 8%, respectively.
+Intelligent Cloud
+Revenue increased $12.9 billion or 17%.
+Server products and cloud services revenue increased $12.6 billion or 19% driven by Azure and other cloud services. Azure and other cloud services revenue grew 29% driven by growth in our consumption-based services. Server products revenue decreased 1%.
+Enterprise Services revenue increased $315 million or 4% driven by growth in Enterprise Support Services, offset in part by a decline in Industry Solutions (formerly Microsoft Consulting Services).
+Operating income increased $4.7 billion or 14%.
+Gross margin increased $8.9 billion or 17% driven by growth in Azure and other cloud services and the change in accounting estimate. Gross margin percentage decreased slightly. Excluding the impact of the change in accounting estimate, gross margin percentage decreased 3 points driven by sales mix shift to Azure and other cloud services and a decline in Azure and other cloud services.
+Operating expenses increased $4.2 billion or 21% driven by investments in Azure, 4 points of growth from the Nuance acquisition, and employee severance expenses.
+Revenue, gross margin, and operating income included an unfavorable foreign currency impact of 4%, 4%, and 6%, respectively. Operating expenses included a favorable foreign currency impact of 2%.
+More Personal Computing
+Revenue decreased $5.2 billion or 9%.
+Windows revenue decreased $3.2 billion or 13% driven by a decrease in Windows OEM. Windows OEM revenue decreased 25% as elevated channel inventory levels continued to drive additional weakness beyond declining PC demand. Windows Commercial products and cloud services revenue increased 5% driven by demand for Microsoft 365.
+Devices revenue decreased $1.8 billion or 24% as elevated channel inventory levels continued to drive additional weakness beyond declining PC demand.
+Gaming revenue decreased $764 million or 5% driven by declines in Xbox hardware and Xbox content and services. Xbox hardware revenue decreased 11% driven by lower volume and price of consoles sold. Xbox content and services revenue decreased 3% driven by a decline in first-party content, offset in part by growth in Xbox Game Pass.
+Search and news advertising revenue increased $617 million or 5%. Search and news advertising revenue excluding traffic acquisition costs increased 11% driven by higher search volume and the Xandr acquisition.
+Operating income decreased $4.0 billion or 20%.
+Gross margin decreased $4.2 billion or 13% driven by declines in Windows and Devices. Gross margin percentage decreased driven by a decline in Devices.
+Operating expenses decreased $195 million or 2% driven by a decline in Devices, offset in part by investments in Search and news advertising, including 2 points of growth from the Xandr acquisition.
+Revenue, gross margin, and operating income included an unfavorable foreign currency impact of 3%, 4%, and 6%, respectively. Operating expenses included a favorable foreign currency impact of 2%.

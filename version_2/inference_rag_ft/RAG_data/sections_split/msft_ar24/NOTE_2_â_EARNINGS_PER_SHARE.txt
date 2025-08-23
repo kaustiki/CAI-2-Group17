@@ -1,0 +1,9 @@
+Basic earnings per share (âEPSâ) is computed based on the weighted average number of shares of common stock outstanding during the period. Diluted EPS is computed based on the weighted average number of shares of common stock plus the effect of dilutive potential common shares outstanding during the period using the treasury stock method. Dilutive potential common shares include outstanding stock options and stock awards.
+The components of basic and diluted EPS were as follows:
+Anti-dilutive stock-based awards excluded from the calculations of diluted EPS were immaterial during the periods presented.
+NOTE 3 â OTHER INCOME (EXPENSE), NET
+The components of other income (expense), net were as follows:
+Other, net primarily reflects net recognized losses on equity method investments.
+Net Recognized Gains (Losses) on Investments
+Net recognized gains (losses) on debt investments were as follows:
+Net recognized gains (losses) on equity investments were as follows:
