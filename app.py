@@ -427,26 +427,26 @@ st.title("Financial Q&A — Guarded RAG vs Fine-Tuned FLAN-T5")
 st.write("Guardrails → (optional) RAG retrieval → (optional) LoRA model (CPU-friendly).")
 
 with st.sidebar:
-    msg = _unzip_local_indexes_if_needed()
-    if msg:
-        (st.warning if "failed" in msg.lower() else st.success)(msg)
+    # msg = _unzip_local_indexes_if_needed()
+    # if msg:
+    #     (st.warning if "failed" in msg.lower() else st.success)(msg)
 
-    st.header("Status")
-    tok_chk, ft_chk, ft_err = load_ft_seq2seq()
-    st.write(f"FT adapters path exists: **{ADAPTER_DIR.exists()}**")
-    if ft_err:
-        st.error(f"FT load error: {ft_err}")
-    else:
-        st.success("FT model loaded OK") if ft_chk is not None else st.warning("Tokenizer OK, adapters missing")
+    # st.header("Status")
+    # tok_chk, ft_chk, ft_err = load_ft_seq2seq()
+    # st.write(f"FT adapters path exists: **{ADAPTER_DIR.exists()}**")
+    # if ft_err:
+    #     st.error(f"FT load error: {ft_err}")
+    # else:
+    #     st.success("FT model loaded OK") if ft_chk is not None else st.warning("Tokenizer OK, adapters missing")
 
-    DENSE, SPARSE, HAS_RAG, health = load_rag_indexes()
-    st.write(f"RAG indexes found: **{HAS_RAG}**")
-    st.caption(health["index_dir"])
-    st.write(f"Sparse available: **{health['sparse_available']}**, FAISS available: **{health['faiss_available']}**")
-    st.write(f"FT adapters exist: **{ADAPTER_DIR.exists()}**")
+    # DENSE, SPARSE, HAS_RAG, health = load_rag_indexes()
+    # st.write(f"RAG indexes found: **{HAS_RAG}**")
+    # st.caption(health["index_dir"])
+    # st.write(f"Sparse available: **{health['sparse_available']}**, FAISS available: **{health['faiss_available']}**")
+    # st.write(f"FT adapters exist: **{ADAPTER_DIR.exists()}**")
 
-    with st.expander("RAG files (presence)"):
-        st.json(health["files"])
+    # with st.expander("RAG files (presence)"):
+    #     st.json(health["files"])
 
     st.divider()
     mode = st.radio("Run mode", ["RAG", "FT"], index=1)
