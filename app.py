@@ -438,6 +438,9 @@ st.set_page_config(page_title="Financial Q&A — RAG or FLAN-T5 LoRA", page_icon
 
 st.title("Financial Q&A — Guarded RAG vs Fine-Tuned FLAN-T5")
 st.write("Guardrails → (optional) RAG retrieval → (optional) LoRA model (CPU-friendly).")
+st.write("Microsoft Documents Link: ") 
+st.write("2023: https://www.microsoft.com/investor/reports/ar23/index.html")
+st.write("2024: https://www.microsoft.com/investor/reports/ar24/index.html")
 
 with st.sidebar:
     # msg = _unzip_local_indexes_if_needed()
