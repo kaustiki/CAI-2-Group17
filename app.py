@@ -2,7 +2,7 @@
 # Works with this tree (defaults):
 # version_2/
 #   ├─ inference_rag_ft/finetune/flan-t5-small_lora_overfit/
-#   └─ RAG_data/indexes/ (or RAG_data/indexes.zip)
+#   └─ inference_rag_ft/RAG_data/indexes/   (or indexes.zip alongside)
 
 import os, re, time, json, io, zipfile, pickle
 from pathlib import Path
@@ -41,7 +41,7 @@ def _getenv(k: str, default: str = "") -> str:
     except Exception:
         return os.environ.get(k, default)
 
-# Paths adapted to your screenshot
+# Paths adapted to your repo layout (override via Secrets/Env if needed)
 BASE_DIR        = Path(_getenv("BASE_DIR", "version_2"))
 RAG_INDEX_DIR   = Path(_getenv("RAG_INDEX_DIR", str(BASE_DIR / "inference_rag_ft" / "RAG_data" / "indexes")))
 RAG_INDEX_ZIP   = Path(_getenv("RAG_INDEX_ZIP", str(BASE_DIR / "inference_rag_ft" / "RAG_data" / "indexes.zip")))
@@ -53,7 +53,7 @@ TRAIN_JSONL_2   = BASE_DIR / "outputs" / "datasets" / "q_a_train.jsonl"  # alt i
 MAX_QUESTION_CHARS = 280
 USE_EXACT_FALLBACK = _getenv("USE_EXACT_FALLBACK", "1") == "1"
 
-# RAG asset names (compatible with the ones we produced earlier)
+# RAG assets (match your prebuilt indexes)
 ASSETS = {
     "chunks100": {
         "tfidf_mat": RAG_INDEX_DIR/"tfidf_chunks100.npz",
@@ -113,19 +113,10 @@ def _unzip_local_indexes_if_needed() -> str:
             return ""
         RAG_INDEX_DIR.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(RAG_INDEX_ZIP, "r") as z:
-            z.extractall(RAG_INDEX_DIR.parent)  # zip contains 'indexes/' dir ideally
+            z.extractall(RAG_INDEX_DIR.parent)  # zip should contain 'indexes/' dir ideally
         return "Indexes unzipped from local indexes.zip."
     except Exception as e:
         return f"Local unzip failed: {e}"
-
-def _as_df_meta(meta_obj):
-    if isinstance(meta_obj, list):
-        return pd.DataFrame(meta_obj)
-    if isinstance(meta_obj, pd.DataFrame):
-        return meta_obj
-    if isinstance(meta_obj, dict):
-        return pd.DataFrame([meta_obj])
-    return pd.DataFrame()
 
 # -------------------------- Cached resources ----------------------------
 @st.cache_resource(show_spinner=False)
@@ -173,6 +164,8 @@ def load_rag_indexes():
             return None
 
     def _load_sparse(name):
+        if (sparse is None) or (cosine_similarity is None):
+            return None
         a = ASSETS[name]
         if not (a["tfidf_mat"].exists() and a["tfidf_vec"].exists() and a["meta"].exists()):
             return None
@@ -192,7 +185,7 @@ def load_rag_indexes():
 # ---------- Train-set answer key (exact fallback) ----------
 @st.cache_resource(show_spinner=False)
 def load_answer_key() -> Dict[str, str]:
-    key = {}
+    key: Dict[str, str] = {}
     def _norm_q(s: str) -> str:
         s = s.strip().lower().replace("’", "'").replace("–", "-").replace("—", "-")
         s = re.sub(r"\s+", " ", s)
@@ -375,7 +368,6 @@ def exact_answer_fallback(question: str) -> str | None:
 def ft_generate_t5(q: str, max_new: int = 96) -> Tuple[str | None, str | None]:
     if torch is None:
         return None, "PyTorch unavailable."
-    # exact fallback first
     ex = exact_answer_fallback(q)
     if ex:
         return ex, None
@@ -407,7 +399,7 @@ def ft_generate_t5(q: str, max_new: int = 96) -> Tuple[str | None, str | None]:
 # -------------------------- UI ------------------------------------------
 st.set_page_config(page_title="Financial Q&A — RAG or FLAN-T5 LoRA", page_icon="💬", layout="centered")
 
-st.title("Financial Q&A — Guarded RAG vs. Fine-Tuned FLAN-T5")
+st.title("Financial Q&A — Guarded RAG vs Fine-Tuned FLAN-T5")
 st.write("Guardrails → (optional) RAG retrieval → (optional) LoRA model (CPU-friendly).")
 
 with st.sidebar:
