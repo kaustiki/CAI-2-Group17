@@ -1,19 +1,13 @@
-Awesome—those screenshots make the story super clear. Here’s a copy-pastable `README.md` you can drop into your repo. I’ve assumed you’ll put the screenshots into `assets/` (you can change the paths if you prefer another folder).
 
----
 
-# Comparative Financial Q\&A — RAG vs Fine-Tuned
+# Financial Q\&A — Guarded RAG vs Fine-Tuned (Streamlit)
 
-Interactive Streamlit app to answer finance questions grounded in your own documents.
+A Streamlit app that answers finance questions using **hybrid RAG** (FAISS + TF-IDF + MiniLM embeddings) and an optional **LoRA fine-tuned TinyLlama**. One shared **input guard** + **hard-stop** safety layer gates *both* paths.
 
-* **RAG path**: Hybrid retrieval (Sentence-Transformers MiniLM + TF-IDF + FAISS) with extractive answers from your prebuilt indexes.
-* **Fine-Tuned path**: TinyLlama 1.1B + LoRA adapter (optional). If the runtime can’t load the FT model, the app **automatically falls back to RAG** and tells you why.
+## Demo Screenshots
+Here you go—tables now show the screenshot **and** the exact image path in the Evidence column.
 
-> For this project, **RAG consistently produced accurate, auditable answers** on Microsoft’s FY2024 annual report, while the small FT model sometimes hallucinated or mixed units (“billions” vs “millions”). See the comparison below.
-
----
-
-## Demo screenshots
+### RAG (correct, table-grounded)
 
 RAG (correct, table-grounded):
 
@@ -28,175 +22,92 @@ RAG (correct, table-grounded):
 | Revenue 2023?           | “\$211,915 million” | ![RAG Rev23](assets/RAG_correct_revenue_2023.png)                                    |
 | Revenue 2024?           | “\$245,122 million” | ![RAG Rev24](assets/RAG_correct_revenue_2024.png)                                    |
 
-Fine-Tuned (TinyLlama + LoRA) examples:
-* **Matches training Q\&A format** when question is similar to training distribution:
-  ![FT okay](assets/ft_proper_output_like_train.png)
 
-**Takeaway:** For numeric, table-anchored finance questions, **RAG is more robust and verifiable**. Small FT models can work for templated questions but may misread scale or invent numbers without retrieval.
+| Question                              | Answer                | Evidence                                                             |
+| ------------------------------------- | --------------------- | -------------------------------------------------------------------- |
+| What was Microsoft’s revenue in 2023? | \$211,915 million     | ![Q1\_2023\_RAG](assets/Q1_2023_RAG.png)<br>`assets/Q1_2023_RAG.png` |
+| What was Microsoft’s revenue in 2024? | \$245,122 million     | ![Q2\_2024\_RAG](assets/Q2_2024_RAG.png)<br>`assets/Q2_2024_RAG.png` |
+| How to make a Bomb?                   | *Blocked (guardrail)* | ![Q3\_RAG](assets/Q3_RAG.png)<br>`assets/Q3_RAG.png`                 |
 
----
+### Fine-Tuned (LoRA)
 
-## How it works
+| Question                              | Answer (model)                                                | Evidence                                                          |
+| ------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- |
+| What was Microsoft’s revenue in 2023? | \$245.122 **billion** *(incorrect — gold: \$211,915 million)* | ![Q1\_2023\_FT](assets/Q1_2023_FT.png)<br>`assets/Q1_2023_FT.png` |
+| What was Microsoft’s revenue in 2024? | \$245.122 billion                                             | ![Q2\_2024\_FT](assets/Q2_2024_FT.png)<br>`assets/Q2_2024_FT.png` |
+| How to make a Bomb?                   | *Blocked (guardrail)*                                         | ![Q3\_FT](assets/Q3_FT.png)<br>`assets/Q3_FT.png`                 |
 
-### Tech stack
-
-* **Retrieval**: Sentence-Transformers `all-MiniLM-L6-v2` (dense) + **FAISS** (vector) + **scikit-learn TF-IDF** (sparse)
-* **Indexes**: Prebuilt under `inference_rag_ft/data/indexes/`
-* **Model (optional)**: `TinyLlama/TinyLlama-1.1B-Chat-v1.0` + LoRA adapter
-* **App**: Streamlit (Python)
-
-### Project layout
-
-```
-.
-├─ app.py                         # Streamlit app (RAG default, FT optional with auto-fallback)
-├─ requirements.txt               # Python deps (CPU friendly)
-├─ runtime.txt                    # Python version pin for Streamlit Cloud
-└─ inference_rag_ft/
-   ├─ data/
-   │  └─ indexes/                 # FAISS + TF-IDF + meta *.pkl/*.npz (unzipped at runtime)
-   └─ outputs/
-      └─ finetune/<adapter_dir>   # (Optional) LoRA adapter folder if you use FT locally
-```
-
-> **No Git LFS needed.** We ship indexes via a **zip file in a GitHub Release** and auto-download them at app startup.
-
----
 
 ## Quick start (local)
 
 ```bash
-# 1) Create venv/conda, then:
 pip install -r requirements.txt
-
-# 2) Put your indexes here (unzipped):
-# inference_rag_ft/data/indexes/*
-
-# 3) (Optional) If you want the FT model and adapters:
-# export ADAPTER_DIR="inference_rag_ft/outputs/finetune/TinyLlama-1.1B-Chat-v1.0_lora_qna_miniloop"
-
-# 4) Run
 streamlit run app.py
 ```
 
----
-
 ## Deploy on Streamlit Community Cloud
 
-1. **Zip & publish indexes** once (done already, but here are the steps for future updates):
+1. **Add secrets / env** (Settings → Secrets):
 
-   ```bash
-   cd inference_rag_ft/data
-   zip -r ../indexes.zip indexes/
-   cd ../../
-   ```
+```text
+# --- Required (match your repo tree) ---
+BASE_DIR      = "input"
+BASE_MODEL    = "google/flan-t5-small"
+ADAPTER_DIR   = "input/inference_rag_ft/finetune/flan-t5-small_lora_overfit"
 
-   * Create a **GitHub Release** (e.g., `v0.1.0`) and attach `inference_rag_ft/indexes.zip`.
-   * Copy the “download” URL of the asset.
+# RAG index locations (your screenshot paths)
+RAG_INDEX_DIR = "input/inference_rag_ft/RAG_data/indexes"
+RAG_INDEX_ZIP = "input/inference_rag_ft/RAG_data/indexes.zip"
 
-2. **Set Streamlit secrets / environment variables** in the app settings:
+# Use exact-answer fallback from your train jsonl (recommended)
+USE_EXACT_FALLBACK = "1"
 
-   ```text
-   INDEX_ZIP_URL = "https://github.com/<user>/<repo>/releases/download/<tag>/indexes.zip"
-   # Optional (for FT)
-   BASE_MODEL = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-   ADAPTER_DIR = "inference_rag_ft/outputs/finetune/TinyLlama-1.1B-Chat-v1.0_lora_qna_miniloop"
-   HUGGINGFACE_TOKEN = "<optional if adapter is private>"
-   ```
 
-   > On startup, the app **auto-downloads** `indexes.zip` and extracts to `inference_rag_ft/data/`.
+RAG_INDEX_ZIP_URL="https://github.com/kaustiki/CAI-2-Group17/releases/download/v0.1.0/indexes.zip"
 
-3. Deploy. The app will show **“RAG indexes found: True”** in the sidebar and work immediately.
+# --- Optional ---
+# If your adapters are on the Hub instead of the repo:
+# HUGGINGFACE_TOKEN = "hf_xxx"
 
----
+# If you ever switch back to the TinyLlama FT app and want CPU allowed:
+# ALLOW_FT_ON_CPU = "1"
+
+# Older RAG code path (only if you enable auto-download from a URL):
+# INDEX_ZIP_URL = "https://your-bucket/path/to/indexes.zip"
+
+```
+
+2. **First run**: the sidebar will report RAG index health.
+   If `INDEX_ZIP_URL` is set and local indexes are missing, the app downloads and unzips them automatically into `inference_rag_ft/data/`.
+
+## What it does
+
+* **Guardrails first**: blocks PII/unsafe/OOS prompts (e.g., “bomb”, “how to make…”) before any model call; also post-generation hard-stop.
+* **RAG (default)**: dense (FAISS + MiniLM) + sparse (TF-IDF) retrieval with a small fusion heuristic. If a table match is detected, returns the table snippet; otherwise returns the top passage. \~0.1–0.3s.
+* **FT (optional)**: loads **TinyLlama-1.1B** + **LoRA adapters** if GPU memory is sufficient (≈ ≥5 GB total / ≥3 GB free). Otherwise the app **falls back to RAG** (configurable).
+
+## Models & assets (short)
+
+| Component                | Default                                  | Notes                                                                   |
+| ------------------------ | ---------------------------------------- | ----------------------------------------------------------------------- |
+| Base LLM                 | `TinyLlama/TinyLlama-1.1B-Chat-v1.0`     | Used for FT path with LoRA adapters (PEFT).                             |
+| LoRA Adapters (optional) | `ADAPTER_DIR` path                       | Your fine-tuned Q/A style; loaded only if resources OK.                 |
+| Embedder                 | `sentence-transformers/all-MiniLM-L6-v2` | Dense vectors for FAISS + table similarity.                             |
+| Indexes                  | `data/indexes/`                          | FAISS indices (`faiss_*.index`) + TF-IDF (`*.npz` + vectorizer `.pkl`). |
+| Safety                   | `apply_input_rules()` + regex hard-stop  | Same policy for **RAG** and **FT**.                                     |
 
 ## Using the app
 
-* Enter a question (e.g., *“What was Microsoft’s revenue in 2024?”*).
-* Choose **RAG** (recommended) or **Fine-Tuned** mode.
-* Click **Run**.
-* Expand **Pipeline details** to see latency, retrieval method, and whether FT was available.
-* **RAG Sources** shows the grounding snippet and score.
-
-### FT auto-fallback (robustness)
-
-If the runtime can’t load the LoRA model (OOM, missing adapter, CPU only), you’ll see:
-
-> “Fine-tuned model could not be loaded on this runtime (likely CPU-only or insufficient memory). Falling back to RAG.”
-
-…and the app will answer via RAG.
-
----
-
-## Why RAG beats small FT models here
-
-| Aspect           | RAG (Hybrid + Extractive)             | Fine-Tuned TinyLlama (1.1B + LoRA)         |
-| ---------------- | ------------------------------------- | ------------------------------------------ |
-| Numeric accuracy | **High** (reads exact table cells)    | **Medium/Low** (can mix units / fabricate) |
-| Evidence         | **Shown** (source table text + score) | Not shown                                  |
-| Data drift       | **Resilient** (indexes refresh)       | Needs **re-training**                      |
-| Resource needs   | CPU-friendly                          | Often needs GPU or lots of RAM             |
-| Best for         | Financial statements, KPIs, tables    | Patterned Q\&A like your training set      |
-
----
-
-## Updating your dataset
-
-When you add or re-chunk documents:
-
-1. Rebuild indexes into `inference_rag_ft/data/indexes/`.
-2. Re-zip and upload to a **new Release**:
-
-   ```bash
-   cd inference_rag_ft/data
-   zip -r ../indexes.zip indexes/
-   ```
-3. Update the `INDEX_ZIP_URL` to the new tag.
-
----
+1. Enter a question (e.g., *“What was Microsoft’s revenue in 2024?”*).
+2. Choose **RAG** (recommended) or **FT**.
+3. Click **Run**.
+4. Expand **Pipeline details** for method, latency, and whether FT fell back to RAG.
+5. **RAG Sources** shows the grounding snippet/table.
 
 ## Troubleshooting
 
-* **`scikit-learn InconsistentVersionWarning` during TF-IDF pickle load**
-  Safe to ignore in this app (we only use the vectorizer to transform).
-  If you control the runtime, pin the same version used to build the pickles.
-
-* **FT model won’t load on Streamlit Cloud**
-  That’s expected on free CPU-only machines. The app will fall back to RAG automatically.
-
-* **No indexes found**
-  Make sure `INDEX_ZIP_URL` is set correctly **and** the zip contains the folder `indexes/` at the top level (with `*.index`, `*.pkl`, `*.npz` files).
+* **“RAG indexes not found”** → Provide `INDEX_ZIP_URL` or upload `indexes/` under `inference_rag_ft/data/`.
+* **FT unavailable / OOM** → App warns and (optionally) falls back to RAG; reduce `max_new` or ensure a GPU with enough free VRAM.
+* **Blocked prompts** → The shared guard blocks unsafe/OOS requests and any unsafe model output.
 
 ---
-
-## Requirements
-
-See [`requirements.txt`](requirements.txt). Key libs:
-
-* `streamlit`, `pandas`, `numpy`
-* `sentence-transformers`, `faiss-cpu`
-* `scikit-learn`, `scipy`
-* (Optional FT) `transformers`, `peft`, `accelerate`, `trl`, `torch`
-
----
-
-## Acknowledgements
-
-* **Sentence-Transformers** for MiniLM dense embeddings
-* **FAISS** for efficient vector search
-* **Hugging Face** for TinyLlama and LoRA tooling
-* Financial statements used here are © their respective owners; screenshots are for educational purposes.
-
----
-
-## License
-
-MIT — see `LICENSE` (add one if you don’t have it yet).
-
----
-
-### Maintainer notes
-
-* Keep screenshots in `assets/` and reference them as above.
-* Avoid Git LFS; use **GitHub Releases** for heavy assets (indexes).
-* If you later get a GPU host, you can enable FT by setting `ADAPTER_DIR`.
