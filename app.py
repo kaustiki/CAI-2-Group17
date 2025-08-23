@@ -335,28 +335,49 @@ def build_prompt_t5(q: str) -> str:
 
 @st.cache_resource(show_spinner=True)
 def load_ft_seq2seq():
-    """CPU-friendly FLAN-T5 small + LoRA adapters."""
+    """
+    CPU-friendly FLAN-T5 small + LoRA adapters.
+    Returns (tok, model, err) where err is None on success.
+    """
     if torch is None:
-        return None, None
+        return None, None, "PyTorch is not installed (torch==None)."
+
+    # 1) Tokenizer + base model
     try:
         tok = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
         tok.padding_side = "right"
         if tok.pad_token_id is None and hasattr(tok, "eos_token_id"):
             tok.pad_token = tok.eos_token
-        base = AutoModelForSeq2SeqLM.from_pretrained(
-            MODEL_NAME, device_map="cpu", low_cpu_mem_usage=True, trust_remote_code=True
-        ).eval()
-    except Exception:
-        return None, None
+    except Exception as e:
+        return None, None, f"Failed to load tokenizer for {MODEL_NAME}: {e}"
 
     try:
+        base = AutoModelForSeq2SeqLM.from_pretrained(
+            MODEL_NAME,
+            device_map="cpu",                 # Streamlit Cloud is CPU-only
+            low_cpu_mem_usage=True,
+            trust_remote_code=False,          # not needed for FLAN-T5
+        ).eval()
+    except Exception as e:
+        return None, None, f"Failed to load base model {MODEL_NAME}: {e}"
+
+    # 2) LoRA adapters
+    try:
+        if not ADAPTER_DIR.exists():
+            return tok, None, f"Adapter path does not exist: {ADAPTER_DIR}"
+        # quick sanity: list files
+        adapter_files = sorted([p.name for p in ADAPTER_DIR.glob('*')])
+        if "adapter_model.safetensors" not in adapter_files and "adapter_model.bin" not in adapter_files:
+            return tok, None, f"Adapters present but no adapter_model.* file in {ADAPTER_DIR}: {adapter_files}"
+
         ft = PeftModel.from_pretrained(base, str(ADAPTER_DIR)).eval()
         if hasattr(ft, "gradient_checkpointing_disable"):
             ft.gradient_checkpointing_disable()
         ft.config.use_cache = True
-    except Exception:
-        ft = None
-    return tok, ft
+        return tok, ft, None
+    except Exception as e:
+        return tok, None, f"Failed to attach LoRA adapters from {ADAPTER_DIR}: {e}"
+
 
 def exact_answer_fallback(question: str) -> str | None:
     if not USE_EXACT_FALLBACK: return None
@@ -366,14 +387,17 @@ def exact_answer_fallback(question: str) -> str | None:
     return key.get(qn)
 
 def ft_generate_t5(q: str, max_new: int = 96) -> Tuple[str | None, str | None]:
-    if torch is None:
-        return None, "PyTorch unavailable."
+    # exact fallback first
     ex = exact_answer_fallback(q)
     if ex:
         return ex, None
-    tok, model = load_ft_seq2seq()
+
+    tok, model, load_err = load_ft_seq2seq()
+    if load_err:
+        return None, f"FT model unavailable: {load_err}"
     if (tok is None) or (model is None):
-        return None, "FT model unavailable on this runtime."
+        return None, "FT model unavailable for unknown reason."
+
     try:
         enc = tok(build_prompt_t5(q), return_tensors="pt", truncation=True, max_length=512)
         dev = next(model.parameters()).device
@@ -394,7 +418,7 @@ def ft_generate_t5(q: str, max_new: int = 96) -> Tuple[str | None, str | None]:
         decoded = tok.decode(out[0], skip_special_tokens=True).strip()
         return _enforce_style(decoded), None
     except Exception as e:
-        return None, f"FT error: {e}"
+        return None, f"FT error during generate: {e}"
 
 # -------------------------- UI ------------------------------------------
 st.set_page_config(page_title="Financial Q&A — RAG or FLAN-T5 LoRA", page_icon="💬", layout="centered")
@@ -408,6 +432,13 @@ with st.sidebar:
         (st.warning if "failed" in msg.lower() else st.success)(msg)
 
     st.header("Status")
+    tok_chk, ft_chk, ft_err = load_ft_seq2seq()
+    st.write(f"FT adapters path exists: **{ADAPTER_DIR.exists()}**")
+    if ft_err:
+        st.error(f"FT load error: {ft_err}")
+    else:
+        st.success("FT model loaded OK") if ft_chk is not None else st.warning("Tokenizer OK, adapters missing")
+
     DENSE, SPARSE, HAS_RAG, health = load_rag_indexes()
     st.write(f"RAG indexes found: **{HAS_RAG}**")
     st.caption(health["index_dir"])
