@@ -43,8 +43,8 @@ def _getenv(k: str, default: str = "") -> str:
 
 # Paths adapted to your screenshot
 BASE_DIR        = Path(_getenv("BASE_DIR", "version_2"))
-RAG_INDEX_DIR   = Path(_getenv("RAG_INDEX_DIR", str(BASE_DIR / "RAG_data" / "indexes")))
-RAG_INDEX_ZIP   = Path(_getenv("RAG_INDEX_ZIP", str(BASE_DIR / "RAG_data" / "indexes.zip")))
+RAG_INDEX_DIR   = Path(_getenv("RAG_INDEX_DIR", str(BASE_DIR / "inference_rag_ft" / "RAG_data" / "indexes")))
+RAG_INDEX_ZIP   = Path(_getenv("RAG_INDEX_ZIP", str(BASE_DIR / "inference_rag_ft" / "RAG_data" / "indexes.zip")))
 MODEL_NAME      = _getenv("BASE_MODEL", "google/flan-t5-small")
 ADAPTER_DIR     = Path(_getenv("ADAPTER_DIR", str(BASE_DIR / "inference_rag_ft" / "finetune" / "flan-t5-small_lora_overfit")))
 TRAIN_JSONL_1   = Path(_getenv("TRAIN_JSONL", "outputs/datasets/q_a_train.jsonl"))
