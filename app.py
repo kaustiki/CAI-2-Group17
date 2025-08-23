@@ -413,6 +413,7 @@ st.set_page_config(page_title="Financial Q&A — Guarded RAG or FT", page_icon="
 
 st.title("Financial Q&A — Guarded RAG vs. Fine-Tuned TinyLlama")
 st.write("Guardrails → (optional) RAG retrieval → (optional) LoRA model. Deployable on Streamlit Community Cloud.")
+st.write("Check the documents (original): https://www.microsoft.com/investor/reports/ar24/index.html and https://www.microsoft.com/investor/reports/ar23/index.html")
 
 with st.sidebar:
     # Optional: trigger index auto-download only after UI exists
