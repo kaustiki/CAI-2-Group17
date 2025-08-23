@@ -1,6 +1,6 @@
 # app.py — Streamlit: Guarded RAG or FT (FLAN-T5 LoRA + optional RAG)
 # Works with this tree (defaults):
-# version_2/
+# input/
 #   ├─ inference_rag_ft/finetune/flan-t5-small_lora_overfit/
 #   └─ inference_rag_ft/RAG_data/indexes/   (or indexes.zip alongside)
 
